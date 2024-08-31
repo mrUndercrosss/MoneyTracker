@@ -1,7 +1,7 @@
 import sys
 
 from Expense import Expense
-
+from Categories import Category
 
 def main():
     expense_file_path = "csv/expenses.csv"
@@ -10,6 +10,7 @@ def main():
     expense = add_expenses()
 
     # todo: Add the ability to add categories
+    # Теперь есть такая возможность через класс Category
 
     # todo: Write their expense to a file
     write_to_file(expense, expense_file_path)
@@ -48,15 +49,7 @@ def add_expenses():
             print('Ясно, с быдлом дело имею')
             exit()
 
-    # todo: выделить категории в отдельный класс, добавить возможность добавлять категории
-    expense_categories = [
-        'Еда',
-        'Транспорт',
-        'Развлечения',
-        'Компы',
-        'Прочее',
-        'Test'
-    ]
+    expense_categories = Category().category_list
 
     while True:
         print("Выбери категорию:")
@@ -94,14 +87,11 @@ def summarize_expenses(expend_file):
             )
             expenses.append(line_expense)
 
-    expense_categories = [
-        {'Еда': []},
-        {'Транспорт': []},
-        {'Развлечения': []},
-        {'Компы': []},
-        {'Прочее': []},
-        {'Test': []}
-    ]
+    expense_categories = []
+    categories = Category().category_list
+    for category in categories:
+        key = category
+        expense_categories.append({key: []})
 
     for expense in expenses:
         for category in expense_categories:
