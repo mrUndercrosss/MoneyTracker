@@ -4,7 +4,7 @@ from Expense import Expense
 
 
 def main():
-    expense_file_path = "expenses.csv"
+    expense_file_path = "csv/expenses.csv"
 
     # todo: Add the ability to add expense
     expense = add_expenses()
@@ -94,8 +94,24 @@ def summarize_expenses(expend_file):
             )
             expenses.append(line_expense)
 
+    expense_categories = [
+        {'Еда': []},
+        {'Транспорт': []},
+        {'Развлечения': []},
+        {'Компы': []},
+        {'Прочее': []},
+        {'Test': []}
+    ]
 
+    for expense in expenses:
+        for category in expense_categories:
+            key = list(category.keys())[0]
+            if expense.category == key:
+                category.get(key).append(expense.amount)
+                break
+    print(expense_categories)
 
 
 if __name__ == "__main__":
     main()
+
