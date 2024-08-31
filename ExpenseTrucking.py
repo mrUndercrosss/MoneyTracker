@@ -14,8 +14,8 @@ def main():
     # todo: Write their expense to a file
     write_to_file(expense, expense_file_path)
 
-    # todo: Read file and sumarize expenses
-
+    # todo: Read file and summarize expenses
+    summarize_expenses(expense_file_path)
 
 def add_category():
     print('You add new category')
@@ -76,14 +76,25 @@ def add_expenses():
 
 
 def write_to_file(record: Expense, file):
-    print(f"Записываем {record} в {file}")
+    print(f"Записываем {record.name} в {file}")
     with open(file, "a") as f:
         f.write(f"{record.name},{record.category},{record.amount} \n")
 
 
+def summarize_expenses(expend_file):
+    expenses = []
+    with open(expend_file, "r") as f:
+        lines = f.readlines()
+        for line in lines:
+            expense_name, expense_category, expense_amount = line.strip().split(",")
+            line_expense = Expense(
+                name=expense_name,
+                amount=float(expense_amount),
+                category=expense_category
+            )
+            expenses.append(line_expense)
 
-def get_expenses():
-    pass
+
 
 
 if __name__ == "__main__":
