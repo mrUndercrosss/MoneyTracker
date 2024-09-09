@@ -1,6 +1,8 @@
 import sys
 from Expense import Expense
 from Categories import Category
+
+
 def main():
     expense_file_path = "csv/expenses.csv"
     # todo: Add the ability to add expense
@@ -11,8 +13,12 @@ def main():
     write_to_file(expense, expense_file_path)
     # todo: Read file and summarize expenses
     expense_list = summarize_expenses(expense_file_path)
+
+
 def add_category():
     print('You add new category')
+
+
 def add_expenses():
     """
     Создаёт новую транзакцию, у которой имеются такие параметры, как
@@ -50,10 +56,14 @@ def add_expenses():
             return new_expense
         else:
             print("Ты инвалид чтоль?", end=' ')
+
+
 def write_to_file(record: Expense, file):
     print(f"Записываем {record.name} в {file}")
     with open(file, "a") as f:
         f.write(f"{record.name},{record.category},{record.amount} \n")
+
+
 def summarize_expenses(expend_file):
     expenses = []
     with open(expend_file, "r") as f:
