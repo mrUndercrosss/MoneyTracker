@@ -1,4 +1,4 @@
-import sys
+
 from Expense import Expense
 from Categories import Category
 
