@@ -3,6 +3,7 @@ from tkinter.ttk import Combobox
 from ExpenseTracking import *
 from Categories import *
 from tkcalendar import DateEntry, Calendar
+from DB import WorkWithBD as db
 
 is_purple = True
 expense_file_path = "csv/expenses.csv"
