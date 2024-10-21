@@ -17,7 +17,7 @@ class WorkWithBD:
         self.user_id = None
 
 
-    def to_register(self, user_id, login, password):
+    def to_registrate(self, user_id, login, password):
         query = """
         INSERT INTO public.users(
 	    user_id, login, password)
@@ -27,7 +27,7 @@ class WorkWithBD:
         self.cursor.execute(query, (user_id, login, password))
         self.conn.commit()
 
-    def login(self, login, password):
+    def to_authorization(self, login, password):
         query = """
         SELECT *
         FROM USERS
@@ -42,6 +42,8 @@ class WorkWithBD:
             elif password == result[2] and login == result[1]:
                 self.user_id = result[0]
                 print('Логин удался')
+        else:
+            print('Попробуй ещё раз')
 
     def get_user_expenses(self):
         query = """
@@ -100,8 +102,8 @@ class WorkWithBD:
 # )
 # """
 #
-# connection = WorkWithBD()
-#
-# connection.login('Not_login', 'Not_password')
+# user = WorkWithBD()
+# user.to_register('4', 'Myster_J', 'Xx123')
+# user.to_authorization('mr_Oleg', 'Not_password')
 # connection.get_user_expenses()
 # print()
