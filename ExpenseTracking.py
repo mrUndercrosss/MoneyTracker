@@ -5,7 +5,7 @@ from DB import *
 db = WorkWithBD()
 
 
-def get_expenses(name, category, amount, user_id, date):
+def write_expenses(name, category, amount, user_id, date):
     expense_file_path = "csv/expenses.csv"
     date = date if date else ''
     if user_id and False:           #Пока не могу починить запись в бд - будет висеть False
@@ -27,27 +27,13 @@ def write_to_file(name, category, amount, user_id, date, file):
         f.write(f"{record.name},{record.category},{record.amount},{record.user_id},{record.date} \n")
 
 
-def summarize_expenses(expend_file):
+def get_expesnses_from_file(expend_file):
     expenses = []
     with open(expend_file, "r") as f:
         lines = f.readlines()
         for line in lines:
-            expense_name, expense_category, expense_amount = line.strip().split(",")
-            line_expense = Expense(
-                name=expense_name,
-                amount=float(expense_amount),
-                category=expense_category
-            )
-            expenses.append(line_expense)
-    expense_categories = []
-    categories = Category().category_list
-    for category in categories:
-        key = category
-        expense_categories.append({key: []})
-    for expense in expenses:
-        for category in expense_categories:
-            key = list(category.keys())[0]
-            if expense.category == key:
-                category.get(key).append(expense.amount)
-                break
-    return expense_categories
+            expense_name, expense_category, expense_amount, user_id, expense_date = line.strip().split(",")
+            expense_in_list = ['expense_id', expense_name, expense_amount, 'comment', 'user_id', expense_date, expense_category]
+            expenses.append(expense_in_list)
+
+    return expenses

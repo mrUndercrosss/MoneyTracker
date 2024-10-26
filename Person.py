@@ -18,6 +18,9 @@ class MainWindow(Tk):
         self.geometry(f"{self.screen_width}x{self.screen_height}")
         self.config(bg=color)
         self.resizable(width=False, height=False)
+        self.top_panel = None
+        self.middle_panel = None
+        self.bottom_panel = None
 
     def run(self):
         self.mainloop()

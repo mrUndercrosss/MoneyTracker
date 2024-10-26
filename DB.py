@@ -79,7 +79,7 @@ class WorkWithBD(Person):
         else:
             print('Попробуй ещё раз')
 
-    def get_user_expenses(self):
+    def get_expenses_from_db(self):
         query = """
                 select *
                 FROM expenses
@@ -87,7 +87,8 @@ class WorkWithBD(Person):
                 """
         self.cursor.execute(query, str(self.user_id))
         result = self.cursor.fetchall()
-        print(result)
+
+        return result
 
 # finally:
 #     if cursor:

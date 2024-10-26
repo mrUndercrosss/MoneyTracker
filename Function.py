@@ -4,12 +4,15 @@ from tkcalendar import DateEntry
 from DB import WorkWithBD
 from Categories import Category
 from ExpenseTracking import *
+import tkinter as tk
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
 
 
 def open_menu(user):
     """
     Функция открывает боковое меню
-    :param main_window: Объект TK
+    :param user: Объект TK
     """
     main_window = user.main_window
     global list_of_canvas
@@ -119,7 +122,7 @@ def open_menu(user):
 def open_authorization(user):
     """
     Функция открывает меню авторизации
-    :param main_window: Объект TK
+    :param user: Объект TK
     """
     main_window = user.main_window
 
@@ -176,6 +179,11 @@ def open_authorization(user):
 
 
 def open_registration(user):
+    """
+
+    :param user: Объект TK
+    :return: Открывает окно регистрации
+    """
     def close_register():
         canvas1.destroy()
 
@@ -244,8 +252,8 @@ def open_expense_window(user):
         amount = float(f_amount.get())
         payment_date = f_date.get()
         category = f_category.get()
-        get_expenses(name=name, category=category, amount=round(amount), user_id=user.user_id, date=payment_date)
-
+        write_expenses(name=name, category=category, amount=round(amount), user_id=user.user_id, date=payment_date)
+        upgrade_diagram_frame(user)
         spending_window.destroy()
 
 
@@ -279,3 +287,54 @@ def open_expense_window(user):
     l_date.grid(row=3, column=0, sticky='w', padx=10, pady=10)
     f_date.grid(row=3, column=1, sticky='e', padx=10, pady=10)
     btn_submit.grid(row=4, column=0, columnspan=2)
+
+
+def get_graphic(Middle_panel):
+    # if user.user_id:
+    #     rows = db.get_expenses_from_db()
+    # else:
+    expense_file_path = "csv/expenses.csv"
+    if expense_file_path:
+        rows = get_expesnses_from_file(expense_file_path)
+    else:
+        rows = None
+
+    categories = []
+    colors = []
+    amount = []
+
+    if rows:
+        for row in rows:
+
+            categories.append(row[-1])
+            amount.append(row[2])
+            colors = ['skyblue', 'gold', 'lightcoral', 'lightslategrey']  # Цвета для секторов
+
+        # Создаем главное окно приложения
+
+        # Создаем фигуру и добавляем её в canvas
+        fig = Figure(figsize=(5, 4), dpi=100)
+        ax = fig.add_subplot(111)
+        ax.pie(amount, labels=categories, colors=colors, autopct='%1.1f%%')
+        ax.axis('equal')
+
+        canvas = FigureCanvasTkAgg(fig, master=Middle_panel.diagram_frame.frame)
+        canvas.draw()
+        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+print()
+def upgrade_diagram_frame(user):
+    spisok = []
+    for widget in user.main_window.middle_panel.frame.winfo_children():
+        spisok.append(widget)
+
+    for widget in user.main_window.middle_panel.frame.winfo_children():
+        if len(widget.children) == 1:
+            print()
+            list(widget.children.values())[0].destroy()
+
+    get_graphic(user.main_window.middle_panel)
+
+
+
+
+
