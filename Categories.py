@@ -13,7 +13,7 @@ class Category:
 
     def add_category(self, new_category):
         with open(self.category_file, "a") as file:
-            file.write(f"{new_category}")
+            file.write(f"{new_category}\n")
 
     def __init__(self):
         self.category_list = self.get_category_list()

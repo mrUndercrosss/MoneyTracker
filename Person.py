@@ -1,0 +1,23 @@
+from tkinter import *
+
+
+class Person:
+
+    def __init__(self):
+        self.user_id = None
+        self.login = None
+        self.additional_info = None
+        self.main_window = None
+
+
+class MainWindow(Tk):
+    def __init__(self, color='Purple'):
+        super().__init__()
+        self.screen_width = int(self.winfo_screenwidth() * 0.75)
+        self.screen_height = int(self.winfo_screenheight() * 0.75)
+        self.geometry(f"{self.screen_width}x{self.screen_height}")
+        self.config(bg=color)
+        self.resizable(width=False, height=False)
+
+    def run(self):
+        self.mainloop()

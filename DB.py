@@ -1,8 +1,9 @@
 import psycopg2
 from psycopg2 import OperationalError
+from Person import Person
 
 
-class WorkWithBD:
+class WorkWithBD(Person):
 
     def create_table_if_not_exist(self):
         query = f"""CREATE TABLE IF NOT EXISTS expenses (id INTEGER, name TEXT)
@@ -11,13 +12,22 @@ class WorkWithBD:
         self.conn.commit()
 
     def __init__(self):
+        super().__init__()
         self.db_uri = 'postgresql://testuser:mr_undercross48162@localhost:5432/MoneyTracker'
         self.conn = psycopg2.connect(self.db_uri)
         self.cursor = self.conn.cursor()
-        self.user_id = None
 
+    def to_registrate(self, login, password):
 
-    def to_registrate(self, user_id, login, password):
+        query = """
+        SELECT user_id
+        FROM users
+        order by user_id desc
+        """
+        self.cursor.execute(query, (login,))
+        user_id = self.cursor.fetchone()
+        user_id = user_id[0] + 1
+
         query = """
         INSERT INTO public.users(
 	    user_id, login, password)
@@ -26,6 +36,30 @@ class WorkWithBD:
 
         self.cursor.execute(query, (user_id, login, password))
         self.conn.commit()
+
+    def write_to_bd(self, name, category, amount, user_id, date):
+        comment = 1
+        query = """
+                select id from expenses
+                where user_id = %s
+                order by id desc
+                """
+        self.cursor.execute(query, (user_id,))
+        result = self.cursor.fetchone()
+        if result:
+            id = result[0] + 1
+        else:
+            id = 1
+
+        query = """
+        INSERT INTO public.expensess(
+	    id, "Transaction_name", "Transaction_category", "Value", "Comment", "Transaction_date", user_id)
+	    VALUES (%s, %s, %s, %s, %s, %s);
+        """
+        print(f'User ID: {user_id}')
+        self.cursor.execute(query, (id, name, category, amount, comment, user_id, date)) # TypeError: not all arguments converted during string formatting. Я рот того манал
+        self.conn.commit()
+        print('Записал в бд')
 
     def to_authorization(self, login, password):
         query = """
@@ -40,8 +74,8 @@ class WorkWithBD:
             if password != result[2]:
                 print('Не угадал')
             elif password == result[2] and login == result[1]:
-                self.user_id = result[0]
                 print('Логин удался')
+                return result[0]
         else:
             print('Попробуй ещё раз')
 
@@ -55,21 +89,20 @@ class WorkWithBD:
         result = self.cursor.fetchall()
         print(result)
 
-
 # finally:
 #     if cursor:
 #         cursor.close()
 #     if conn:
 #         conn.close()
 #
-    # def execute_query(self, query):
-    #     self.conn.autocommit = True
-    #     cursor = self.conn.cursor()
-    #     try:
-    #         cursor.execute(query)
-    #         print("Query executed successfully")
-    #     except OperationalError as e:
-    #         print(f"The error '{e}' occurred")
+# def execute_query(self, query):
+#     self.conn.autocommit = True
+#     cursor = self.conn.cursor()
+#     try:
+#         cursor.execute(query)
+#         print("Query executed successfully")
+#     except OperationalError as e:
+#         print(f"The error '{e}' occurred")
 #
 # create_users_table = """
 # CREATE TABLE IF NOT EXISTS users (

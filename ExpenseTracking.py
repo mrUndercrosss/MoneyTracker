@@ -1,18 +1,30 @@
-
 from Expense import Expense
 from Categories import Category
+from DB import *
+
+db = WorkWithBD()
 
 
-def main(name, category, amount):
+def get_expenses(name, category, amount, user_id, date):
     expense_file_path = "csv/expenses.csv"
-    write_to_file(name, category, amount, expense_file_path)
+    date = date if date else ''
+    if user_id and False:           #Пока не могу починить запись в бд - будет висеть False
+        print(f'Name:{name}, nameType:{type(name)}')
+        print(f'Category:{category}, categoryType:{type(category)}')
+        print(f'Amount: {amount}, amountType{type(amount)}')
+        print(f'Date:{date}, dateType:{type(date)}')
+
+        db.write_to_bd(name=name, category=category, amount=amount, user_id=user_id, date=date)
+
+    else:
+        write_to_file(name=name, category=category, amount=amount, user_id=user_id, date=date, file=expense_file_path)
 
 
-def write_to_file(name, category, amount, file):
-    record = Expense(name, category, amount)
+def write_to_file(name, category, amount, user_id, date, file):
+    record = Expense(name=name, category=category, amount=amount, date=date, user_id=user_id)
     print(f"Записываем {record.name} в {file}")
     with open(file, "a") as f:
-        f.write(f"{record.name},{record.category},{record.amount} \n")
+        f.write(f"{record.name},{record.category},{record.amount},{record.user_id},{record.date} \n")
 
 
 def summarize_expenses(expend_file):

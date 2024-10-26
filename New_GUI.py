@@ -1,19 +1,12 @@
 from tkinter import *
 from Function import *
 from DB import *
-class MainWindow:
-    def __init__(self, color='Purple'):
-        self.main_windows = Tk()
-        self.screen_width = int(self.main_windows.winfo_screenwidth() * 0.75)
-        self.screen_height = int(self.main_windows.winfo_screenheight() * 0.75)
-        self.main_windows.geometry(f"{self.screen_width}x{self.screen_height}")
-        self.main_windows.config(bg=color)
-        self.main_windows.resizable(width=False, height=False)
+from Person import Person, MainWindow
 
-    def run(self):
-        self.main_windows.mainloop()
-class Panel:
+
+class Panel(Person):
     def __init__(self, width=100, height=100):
+        super().__init__()
         self.side = None
         self.frame = None
         self.width = width
@@ -30,6 +23,7 @@ class Panel:
         self.frame.pack(side=side)
         self.frame.pack_propagate(False)
         return self
+
     def add_button(self, space, frame_side, button_side, width, height, w_divisor, h_divisor,
                    panel=None, command=None, bg=None, text='Кноп'):
         """
@@ -51,12 +45,14 @@ class Panel:
         button.pack(side=button_side)
         return button
 
+
 class TopPanel(Panel):
-    def __init__(self, master):
+    def __init__(self, user):
         super().__init__()
-        self.width = master.screen_width
-        self.height = round(master.screen_height * 0.1)
-        self.attach_to(master.main_windows, 'top')
+        main_window = user.main_window
+        self.width = main_window.screen_width
+        self.height = round(main_window.screen_height * 0.1)
+        self.attach_to(main_window, 'top')
         self.menu_frame = Panel(round(self.width / 3), self.height)
         self.menu_frame.attach_to(self.frame, 'left', 'green')
         self.menu_frame.add_button(self.menu_frame.frame, frame_side='left', button_side='right',
@@ -70,20 +66,25 @@ class TopPanel(Panel):
         self.authorization_frame.add_button(self.authorization_frame.frame, frame_side='right', button_side='left',
                                             width=int(self.width / 224), height=self.height,
                                             bg='blue', w_divisor=6, h_divisor=1, command=self.authorization)
+
     @staticmethod
     def menu():
-        global main_window
-        open_menu(main_window)
+        global user
+        open_menu(user)
+
     @staticmethod
     def authorization():
-        global main_window
-        open_authorization(main_window)
+        global user
+        open_authorization(user)
+
+
 class MiddlePanel(Panel):
-    def __init__(self, master):
+    def __init__(self, user):
         super().__init__()
-        self.width = master.screen_width
-        self.height = round(master.screen_height * 0.7)
-        self.attach_to(master.main_windows, side='top', bg='sky blue')
+        main_window = user.main_window
+        self.width = main_window.screen_width
+        self.height = round(main_window.screen_height * 0.7)
+        self.attach_to(main_window, side='top', bg='sky blue')
         self.right_button_panel = Panel(width=round(self.width * 0.05), height=self.height)
         self.right_button_panel.attach_to(self.frame, 'right', 'green')
         empty_space = Panel(width=round(self.width * 0.05), height=round(self.height / 7))
@@ -137,18 +138,34 @@ class MiddlePanel(Panel):
                                                         w_divisor=1,
                                                         h_divisor=7, text='?')
 
+
 class BottomPanel(Panel):
-    def __init__(self, master):
+
+    def __init__(self, user):
         super().__init__()
-        self.width = master.screen_width
-        self.height = round(master.screen_height * 0.2)
-        self.bottom_panel = self.attach_to(master.main_windows, side='top', bg='blue')
+        main_window = user.main_window
+        self.width = main_window.screen_width
+        self.height = round(main_window.screen_height * 0.2)
+        self.bottom_panel = self.attach_to(main_window, side='top', bg='blue')
 
-main_window = MainWindow()
-top_panel = TopPanel(main_window)
-middle_panel = MiddlePanel(main_window)
-bottom_panel = BottomPanel(main_window)
+        self.add_button(self.bottom_panel.frame, frame_side='top',
+                        button_side='top',
+                        w_divisor=3,
+                        h_divisor=5,
+                        width=int(self.width), height=self.height, bg='green',
+                        text='Добавить транзакцию', command=self.expense_window)
+
+    @staticmethod
+    def expense_window():
+        global user
+        open_expense_window(user)
 
 
+user = Person()
+user.main_window = MainWindow()
 
-main_window.run()
+top_panel = TopPanel(user)
+middle_panel = MiddlePanel(user)
+bottom_panel = BottomPanel(user)
+
+user.main_window.run()

@@ -1,13 +1,17 @@
 from tkinter import *
+from tkinter.ttk import Combobox
+from tkcalendar import DateEntry
 from DB import WorkWithBD
 from Categories import Category
+from ExpenseTracking import *
 
 
-def open_menu(main_window):
+def open_menu(user):
     """
     Функция открывает боковое меню
     :param main_window: Объект TK
     """
+    main_window = user.main_window
     global list_of_canvas
     list_of_canvas = []  # todo: Подумать над реализацией списка канвасов для их закрытия
     global canvas_menu_main
@@ -24,7 +28,7 @@ def open_menu(main_window):
         canvas_categories.destroy()  # todo: Если 2 раза нажать на "Категории", то закроется только один канвас
         add_category_canvas.destroy()  # todo: Придумать как проверять, не используя его название
 
-    root = main_window.main_windows
+    root = main_window
     root_width = main_window.screen_width
     root_height = main_window.screen_height
     canvas_menu_main = Canvas(root, width=int(root_width / 4), height=root_height,
@@ -90,7 +94,7 @@ def open_menu(main_window):
             btn_submit.pack(side='top')
             return add_category_canvas
 
-        root = main_window.main_windows
+        root = main_window
         root_width = main_window.screen_width
         root_height = main_window.screen_height
         canvas_menu_additional.destroy()
@@ -112,11 +116,12 @@ def open_menu(main_window):
         return canvas_categories
 
 
-def open_authorization(main_window):
+def open_authorization(user):
     """
     Функция открывает меню авторизации
     :param main_window: Объект TK
     """
+    main_window = user.main_window
 
     def authorization_submit():
         """
@@ -125,13 +130,15 @@ def open_authorization(main_window):
         db = WorkWithBD()
         login = login_entry.get()
         password = password_entry.get()
-        db.to_authorization(login, password)
+        uid = db.to_authorization(login, password)
+        if uid:
+            user.user_id = uid
         canvas1.destroy()
 
     def close_authorization():
         canvas1.destroy()
 
-    root = main_window.main_windows
+    root = main_window
     root_width = main_window.screen_width
     root_height = main_window.screen_height
 
@@ -140,7 +147,7 @@ def open_authorization(main_window):
         Закрываем окно авторизации - открываем регистрации
         """
         close_authorization()
-        open_registration(main_window)
+        open_registration(user)
 
     canvas1 = Canvas(root, width=root_width, height=root_height, highlightthickness=0)
     canvas1.pack_propagate(False)
@@ -168,7 +175,7 @@ def open_authorization(main_window):
     btn_registrate.grid(row=5, column=0, columnspan=2)
 
 
-def open_registration(main_window):
+def open_registration(user):
     def close_register():
         canvas1.destroy()
 
@@ -180,7 +187,7 @@ def open_registration(main_window):
         name = name_entry.get()
         login = login_entry.get()
         password = password_entry.get()
-        db.to_registrate(23, login, password)
+        db.to_registrate(login, password)
         canvas1.destroy()
 
     def registrate():
@@ -188,9 +195,10 @@ def open_registration(main_window):
         Закрываем окно регистрации - открываем авторизации
         """
         close_register()
-        open_authorization(main_window)
+        open_authorization(user)
 
-    root = main_window.main_windows
+    main_window = user.main_window
+    root = main_window
     root_width = main_window.screen_width
     root_height = main_window.screen_height
     canvas1 = Canvas(root, width=root_width, height=root_height, highlightthickness=0)
@@ -220,3 +228,54 @@ def open_registration(main_window):
     password_entry.grid(row=2, column=1, sticky='e', padx=10, pady=10)
     btn_submit.grid(row=4, column=0, columnspan=2)
     btn_authorization.grid(row=5, column=0, columnspan=2)
+
+
+def open_expense_window(user):
+    """
+    Открывает окно для создания транзакции
+    """
+
+    def expense_submit():
+        """
+        Собирает данные для записи транзакции и закрывает окно
+        """
+
+        name = f_name_expense.get()
+        amount = float(f_amount.get())
+        payment_date = f_date.get()
+        category = f_category.get()
+        get_expenses(name=name, category=category, amount=round(amount), user_id=user.user_id, date=payment_date)
+
+        spending_window.destroy()
+
+
+    root = user.main_window
+
+    spending_window = Toplevel(root)
+    spending_window.title("Window 1")
+    spending_window.geometry("350x250")
+    spending_window.attributes('-topmost', True)
+    spending_window.lift()
+    spending_window.focus_force()
+    spending_window.resizable(width=False, height=False)
+
+    expense_categories = Category().category_list
+    l_name_expense = Label(spending_window, text='На что потратил?')
+    f_name_expense = Entry(spending_window, justify=RIGHT)
+    l_category = Label(spending_window, text='Выбери категорию раcходов')
+    f_category = Combobox(spending_window, values=expense_categories)
+    l_amount = Label(spending_window, text='Введи сумму')
+    f_amount = Entry(spending_window, justify=RIGHT)
+    l_date = Label(spending_window, text='Введи дату')
+    f_date = DateEntry(spending_window, date_pattern='dd-mm-YYYY')
+    btn_submit = Button(spending_window, text="Submit", command=expense_submit)
+
+    l_name_expense.grid(row=0, column=0, sticky='w', padx=10, pady=10)
+    f_name_expense.grid(row=0, column=1, sticky='e', padx=10, pady=10)
+    l_category.grid(row=1, column=0, sticky='w', padx=10, pady=10)
+    f_category.grid(row=1, column=1, sticky='e', padx=10, pady=10)
+    l_amount.grid(row=2, column=0, sticky='w', padx=10, pady=10)
+    f_amount.grid(row=2, column=1, sticky='e', padx=10, pady=10)
+    l_date.grid(row=3, column=0, sticky='w', padx=10, pady=10)
+    f_date.grid(row=3, column=1, sticky='e', padx=10, pady=10)
+    btn_submit.grid(row=4, column=0, columnspan=2)
