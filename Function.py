@@ -2,7 +2,7 @@ from tkinter import *
 from tkinter.ttk import Combobox
 from tkcalendar import DateEntry
 from DB import WorkWithBD
-from Categories import Category
+from Categories import *
 from ExpenseTracking import *
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -62,18 +62,22 @@ def open_menu(user):
     canvas_menu_additional.place(x=root_width / 4, y=0)
 
     def open_categories(main_window):
-        category = Category()
+        category = ExpenseCategories()
 
         def new_category():
             global add_category_canvas
             add_category_canvas = open_new_category()
 
         def open_new_category():
+
+            colors_values = ['red', 'blue', 'purple', 'brown', 'yellow']
+
             def category_submit():
                 name = name_entry.get()
                 image = image_entry.get()
                 comment = comment_entry.get()
-                category.add_category(name)
+                color = color_entry.get()
+                category.add_category(name, color)
                 add_category_canvas.destroy()
                 canvas_categories.destroy()
                 categories()
@@ -87,6 +91,8 @@ def open_menu(user):
             image_entry = Entry(add_category_canvas, justify=RIGHT)
             comment_label = Label(add_category_canvas, text="Введите комментарий")
             comment_entry = Entry(add_category_canvas, justify=RIGHT)
+            color_label = Label(add_category_canvas, text='Выберите цвет для категории')
+            color_entry = Combobox(add_category_canvas, values=colors_values)
             btn_submit = Button(add_category_canvas, text="Submit", command=category_submit)
             name_label.pack(side='top')
             name_entry.pack(side='top')
@@ -94,6 +100,8 @@ def open_menu(user):
             image_entry.pack(side='top')
             comment_label.pack(side='top')
             comment_entry.pack(side='top')
+            color_label.pack(side='top')
+            color_entry.pack(side='top')
             btn_submit.pack(side='top')
             return add_category_canvas
 
@@ -112,7 +120,8 @@ def open_menu(user):
         info_frame.pack(side='top')
         info_second_frame.pack(side='bottom')
         add_category_button.pack(side='top')
-        for categor in category.category_list:
+
+        for categor in list(category.category_dict.keys()):
             categories_label = Label(canvas_categories, text=categor, width=round(root_width * 0.05),
                                      height=round(root_height * 0.005), background='blue')
             categories_label.pack(side='top')
@@ -184,6 +193,7 @@ def open_registration(user):
     :param user: Объект TK
     :return: Открывает окно регистрации
     """
+
     def close_register():
         canvas1.destroy()
 
@@ -256,7 +266,6 @@ def open_expense_window(user):
         upgrade_diagram_frame(user)
         spending_window.destroy()
 
-
     root = user.main_window
 
     spending_window = Toplevel(root)
@@ -267,7 +276,7 @@ def open_expense_window(user):
     spending_window.focus_force()
     spending_window.resizable(width=False, height=False)
 
-    expense_categories = Category().category_list
+    expense_categories = list(Category().get_expence_category_dict().keys())
     l_name_expense = Label(spending_window, text='На что потратил?')
     f_name_expense = Entry(spending_window, justify=RIGHT)
     l_category = Label(spending_window, text='Выбери категорию раcходов')
@@ -295,9 +304,12 @@ def get_graphic(Middle_panel):
     # else:
     expense_file_path = "csv/expenses.csv"
     if expense_file_path:
+        cat = ExpenseCategories()
+        expense_categories = cat.get_expence_category_dict()
         rows = get_expesnses_from_file(expense_file_path)
     else:
-        rows = None
+        rows = None             #todo: Что должно быть на главном экране, если расходов нет?
+
 
     categories = []
     colors = []
@@ -305,14 +317,15 @@ def get_graphic(Middle_panel):
 
     if rows:
         for row in rows:
+            category_name, category_amount = row[-1], int(row[2])
+            if category_name not in categories:
+                categories.append(category_name)
+                amount.append(category_amount)
+                colors.append(expense_categories.get(category_name)[0])
+            else:
+                ind = categories.index(category_name)
+                amount[ind] += category_amount
 
-            categories.append(row[-1])
-            amount.append(row[2])
-            colors = ['skyblue', 'gold', 'lightcoral', 'lightslategrey']  # Цвета для секторов
-
-        # Создаем главное окно приложения
-
-        # Создаем фигуру и добавляем её в canvas
         fig = Figure(figsize=(5, 4), dpi=100)
         ax = fig.add_subplot(111)
         ax.pie(amount, labels=categories, colors=colors, autopct='%1.1f%%')
@@ -321,11 +334,15 @@ def get_graphic(Middle_panel):
         canvas = FigureCanvasTkAgg(fig, master=Middle_panel.diagram_frame.frame)
         canvas.draw()
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+
 print()
-def upgrade_diagram_frame(user):
-    spisok = []
+
+
+def upgrade_diagram_frame(user):        #todo: Очень на тоненького решение, разобраться бы как передаются названия
+    objects_list = []                         #todo: для фреймов и канвасов и закрывать конкретные канвасы
     for widget in user.main_window.middle_panel.frame.winfo_children():
-        spisok.append(widget)
+        objects_list.append(widget)
 
     for widget in user.main_window.middle_panel.frame.winfo_children():
         if len(widget.children) == 1:
@@ -333,8 +350,3 @@ def upgrade_diagram_frame(user):
             list(widget.children.values())[0].destroy()
 
     get_graphic(user.main_window.middle_panel)
-
-
-
-
-

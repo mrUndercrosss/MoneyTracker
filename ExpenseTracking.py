@@ -1,5 +1,4 @@
 from Expense import Expense
-from Categories import Category
 from DB import *
 
 db = WorkWithBD()
@@ -32,6 +31,8 @@ def get_expesnses_from_file(expend_file):
     with open(expend_file, "r") as f:
         lines = f.readlines()
         for line in lines:
+            if len(line) == 1:      #Видимо из-за кодировок он теперь в строках видит \n, минипроверка
+                continue
             expense_name, expense_category, expense_amount, user_id, expense_date = line.strip().split(",")
             expense_in_list = ['expense_id', expense_name, expense_amount, 'comment', 'user_id', expense_date, expense_category]
             expenses.append(expense_in_list)
