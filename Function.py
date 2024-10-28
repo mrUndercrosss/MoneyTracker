@@ -7,7 +7,7 @@ from ExpenseTracking import *
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
-
+import datetime
 
 def open_menu(user):
     """
@@ -350,3 +350,41 @@ def upgrade_diagram_frame(user):        #todo: Очень на тоненько�
             list(widget.children.values())[0].destroy()
 
     get_graphic(user.main_window.middle_panel)
+
+
+def get_period_day(user):
+    today = datetime.datetime.today()
+    year, month, day = today.year, today.month, today.day
+    date_today = f'{day}-{month}-{year}'
+    user.main_window.middle_panel.period_date = [date_today]
+    print(user.main_window.middle_panel.period_date)
+
+
+def get_period_week(user):
+
+    current_date = datetime.datetime.now()
+    weekdays = []
+    start_of_week = current_date - datetime.timedelta(days=current_date.weekday())
+    for i in range(7):
+        date = start_of_week + datetime.timedelta(days=i)
+        weekdays.append(date.strftime('%d-%m-%Y'))
+
+    user.main_window.middle_panel.period_date = weekdays
+    print(user.main_window.middle_panel.period_date)
+
+
+def get_month(user):
+
+    today = datetime.datetime.now()
+    month = [f'{today.month}-{today.year}']
+    user.main_window.middle_panel.period_date = month
+    print(user.main_window.middle_panel.period_date)
+
+
+def get_year(user):
+    today = datetime.datetime.now()
+    year = [f'{today.year}']
+    user.main_window.middle_panel.period_date = year
+    print(user.main_window.middle_panel.period_date)
+
+

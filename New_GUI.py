@@ -85,8 +85,7 @@ class MiddlePanel(Panel):
         self.width = main_window.screen_width
         self.height = round(main_window.screen_height * 0.7)
         self.attach_to(main_window, side='top', bg='sky blue')
-
-
+        self.period_date = [f'{datetime.datetime.now().month}-{datetime.datetime.now().year}']
         self.right_button_panel = Panel(width=round(self.width * 0.05), height=self.height)
         self.right_button_panel.attach_to(self.frame, 'right', 'green')
         empty_space = Panel(width=round(self.width * 0.05), height=round(self.height / 7))
@@ -96,22 +95,22 @@ class MiddlePanel(Panel):
                                                         button_side='bottom',
                                                         width=int(self.width), height=self.height, bg='green',
                                                         w_divisor=1,
-                                                        h_divisor=7, text='День')
+                                                        h_divisor=7, text='День', command=self.period_day)
         week_button = self.right_button_panel.add_button(self.right_button_panel.frame, frame_side='top',
                                                          button_side='bottom',
                                                          width=int(self.width), height=self.height, bg='green',
                                                          w_divisor=1,
-                                                         h_divisor=7, text='Неделя')
+                                                         h_divisor=7, text='Неделя', command=self.period_week)
         month_button = self.right_button_panel.add_button(self.right_button_panel.frame, frame_side='top',
                                                           button_side='bottom',
                                                           width=int(self.width), height=self.height, bg='green',
                                                           w_divisor=1,
-                                                          h_divisor=7, text='Месяц')
+                                                          h_divisor=7, text='Месяц', command=self.period_month)
         year_button = self.right_button_panel.add_button(self.right_button_panel.frame, frame_side='top',
                                                          button_side='bottom',
                                                          width=int(self.width), height=self.height, bg='green',
                                                          w_divisor=1,
-                                                         h_divisor=7, text='Год')
+                                                         h_divisor=7, text='Год', command=self.period_year)
         period_button = self.right_button_panel.add_button(self.right_button_panel.frame, frame_side='top',
                                                            button_side='bottom',
                                                            width=int(self.width), height=self.height, bg='green',
@@ -142,7 +141,27 @@ class MiddlePanel(Panel):
 
         get_graphic(self)
 
+        self.category_type = None
 
+    @staticmethod
+    def period_day():
+        global user
+        get_period_day(user)
+
+    @staticmethod
+    def period_week():
+        global user
+        get_period_week(user)
+
+    @staticmethod
+    def period_month():
+        global user
+        get_month(user)
+
+    @staticmethod
+    def period_year():
+        global user
+        get_year(user)
 
 
 class BottomPanel(Panel):
