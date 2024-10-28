@@ -317,14 +317,15 @@ def get_graphic(Middle_panel):
 
     if rows:
         for row in rows:
-            category_name, category_amount = row[-1], int(row[2])
-            if category_name not in categories:
-                categories.append(category_name)
-                amount.append(category_amount)
-                colors.append(expense_categories.get(category_name)[0])
-            else:
-                ind = categories.index(category_name)
-                amount[ind] += category_amount
+            category_name, category_amount, category_date = row[-1], int(row[2]), row[-2]
+            if (Middle_panel.period_date[0] in category_date) or (category_date in Middle_panel.period_date):
+                if category_name not in categories:
+                    categories.append(category_name)
+                    amount.append(category_amount)
+                    colors.append(expense_categories.get(category_name)[0])
+                else:
+                    ind = categories.index(category_name)
+                    amount[ind] += category_amount
 
         fig = Figure(figsize=(5, 4), dpi=100)
         ax = fig.add_subplot(111)

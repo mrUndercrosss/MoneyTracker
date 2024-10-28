@@ -147,22 +147,23 @@ class MiddlePanel(Panel):
     def period_day():
         global user
         get_period_day(user)
+        upgrade_diagram_frame(user)
 
     @staticmethod
     def period_week():
         global user
         get_period_week(user)
-
+        upgrade_diagram_frame(user)
     @staticmethod
     def period_month():
         global user
         get_month(user)
-
+        upgrade_diagram_frame(user)
     @staticmethod
     def period_year():
         global user
         get_year(user)
-
+        upgrade_diagram_frame(user)
 
 class BottomPanel(Panel):
 
