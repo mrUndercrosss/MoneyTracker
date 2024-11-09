@@ -9,33 +9,28 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import datetime
 
+
 def open_menu(user):
     """
     Функция открывает боковое меню
     :param user: Объект TK
     """
     main_window = user.main_window
-    global list_of_canvas
-    list_of_canvas = []  # todo: Подумать над реализацией списка канвасов для их закрытия
-    global canvas_menu_main
-    global canvas_menu_additional
+    list_of_canvas = []
 
     def categories():
-        global canvas_categories
-        canvas_categories = open_categories(main_window)
-        list_of_canvas.append(canvas_categories)
+        canvas_categories = open_categories(user)
 
     def close_menu():
-        canvas_menu_main.destroy()
-        canvas_menu_additional.destroy()
-        canvas_categories.destroy()  # todo: Если 2 раза нажать на "Категории", то закроется только один канвас
-        add_category_canvas.destroy()  # todo: Придумать как проверять, не используя его название
+        for canv in list_of_canvas:
+            canv.destroy()
 
     root = main_window
     root_width = main_window.screen_width
     root_height = main_window.screen_height
     canvas_menu_main = Canvas(root, width=int(root_width / 4), height=root_height,
                               bg="red", highlightthickness=0)
+    list_of_canvas.append(canvas_menu_main)
     canvas_menu_main.pack_propagate(False)
     canvas_menu_main.place(x=0, y=0)
     empty_frame = Frame(canvas_menu_main, bg='white', width=int(root_width / 4), height=int(root_height * 0.2))
@@ -58,31 +53,63 @@ def open_menu(user):
     button_close_canvas.pack(side="top")
     canvas_menu_additional = Canvas(root, width=int(root_width * 3 / 4), height=root_height,
                                     highlightthickness=0)
+    list_of_canvas.append(canvas_menu_additional)
     canvas_menu_additional.pack_propagate(False)
     canvas_menu_additional.place(x=root_width / 4, y=0)
 
-    def open_categories(main_window):
-        category = ExpenseCategories()
+    def open_categories(user):
+
+        main_window = user.main_window
+        expence_category = ExpenseCategories()
+        income_category = IncomeCategories()
+
+        def change_category_type():
+
+            if user.expenses_or_income == 'e':
+                user.expenses_or_income = 'i'
+            else:
+                user.expenses_or_income = 'e'
+            canvas_categories.destroy()
+            open_categories(user)
 
         def new_category():
-            global add_category_canvas
             add_category_canvas = open_new_category()
+
+        def fill_out_canvas():
+            """
+            Функция очищает canvas_categories и заполняет соответствующими категориями
+            """
+            if user.expenses_or_income == 'e':
+                category_dict = expence_category.category_dict.keys()
+            else:
+                category_dict = income_category.category_dict.keys()
+
+            for categor in list(category_dict):
+                categories_label = Label(canvas_categories, text=categor, width=round(root_width * 0.05),
+                                         height=round(root_height * 0.005), background='blue')
+                categories_label.pack(side='top')
 
         def open_new_category():
 
             colors_values = ['red', 'blue', 'purple', 'brown', 'yellow']
 
             def category_submit():
+
                 name = name_entry.get()
                 image = image_entry.get()
                 comment = comment_entry.get()
                 color = color_entry.get()
-                category.add_category(name, color)
+                if name:
+                    if user.expenses_or_income == 'e':
+                        expence_category.add_category(name, color, user.expenses_or_income)
+                    else:
+                        income_category.add_category(name, color, user.expenses_or_income)
                 add_category_canvas.destroy()
                 canvas_categories.destroy()
                 categories()
 
             add_category_canvas = Canvas(root, width=int(root_width * 3 / 4), height=root_height, highlightthickness=0)
+            list_of_canvas.append(add_category_canvas)
             add_category_canvas.pack_propagate(False)
             add_category_canvas.place(x=root_width / 4, y=0)
             name_label = Label(add_category_canvas, text="Введите название")
@@ -105,26 +132,28 @@ def open_menu(user):
             btn_submit.pack(side='top')
             return add_category_canvas
 
-        root = main_window
         root_width = main_window.screen_width
         root_height = main_window.screen_height
         canvas_menu_additional.destroy()
-        canvas_categories = Canvas(root, width=int(root_width * 3 / 4), height=root_height, highlightthickness=0)
+        canvas_categories = Canvas(main_window, width=int(root_width * 3 / 4), height=root_height, highlightthickness=0)
+        list_of_canvas.append(canvas_categories)
         canvas_categories.pack_propagate(False)
         canvas_categories.place(x=root_width / 4, y=0)
         info_frame = Frame(canvas_categories, width=root_width, height=round(root_height * 0.1), bg='red')
         info_frame.pack_propagate(False)
         info_second_frame = Frame(canvas_categories, width=root_width, height=round(root_height * 0.1), bg='red')
         info_second_frame.pack_propagate(False)
+
+        text_for_button = lambda x = user.expenses_or_income: 'Категория расходов' if x == 'e' else 'Категория доходов'
+        change_category_type_button = Button(info_frame, text=text_for_button(), command=change_category_type)
         add_category_button = Button(info_second_frame, text='Добавить категорию', command=new_category)
+
         info_frame.pack(side='top')
         info_second_frame.pack(side='bottom')
         add_category_button.pack(side='top')
+        change_category_type_button.pack(side='bottom')
 
-        for categor in list(category.category_dict.keys()):
-            categories_label = Label(canvas_categories, text=categor, width=round(root_width * 0.05),
-                                     height=round(root_height * 0.005), background='blue')
-            categories_label.pack(side='top')
+        fill_out_canvas()
         return canvas_categories
 
 
@@ -189,7 +218,6 @@ def open_authorization(user):
 
 def open_registration(user):
     """
-
     :param user: Объект TK
     :return: Открывает окно регистрации
     """
@@ -308,8 +336,7 @@ def get_graphic(Middle_panel):
         expense_categories = cat.get_expence_category_dict()
         rows = get_expesnses_from_file(expense_file_path)
     else:
-        rows = None             #todo: Что должно быть на главном экране, если расходов нет?
-
+        rows = None  # todo: Что должно быть на главном экране, если расходов нет?
 
     categories = []
     colors = []
@@ -340,8 +367,8 @@ def get_graphic(Middle_panel):
 print()
 
 
-def upgrade_diagram_frame(user):        #todo: Очень на тоненького решение, разобраться бы как передаются названия
-    objects_list = []                         #todo: для фреймов и канвасов и закрывать конкретные канвасы
+def upgrade_diagram_frame(user):  # todo: Очень на тоненького решение, разобраться бы как передаются названия
+    objects_list = []  # todo: для фреймов и канвасов и закрывать конкретные канвасы
     for widget in user.main_window.middle_panel.frame.winfo_children():
         objects_list.append(widget)
 
@@ -362,7 +389,6 @@ def get_period_day(user):
 
 
 def get_period_week(user):
-
     current_date = datetime.datetime.now()
     weekdays = []
     start_of_week = current_date - datetime.timedelta(days=current_date.weekday())
@@ -375,7 +401,6 @@ def get_period_week(user):
 
 
 def get_month(user):
-
     today = datetime.datetime.now()
     month = [f'{today.month}-{today.year}']
     user.main_window.middle_panel.period_date = month
@@ -387,5 +412,3 @@ def get_year(user):
     year = [f'{today.year}']
     user.main_window.middle_panel.period_date = year
     print(user.main_window.middle_panel.period_date)
-
-

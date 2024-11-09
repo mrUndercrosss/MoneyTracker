@@ -8,6 +8,7 @@ class Person:
         self.login = None
         self.additional_info = None
         self.main_window = None
+        self.expenses_or_income = 'e'
 
 
 class MainWindow(Tk):
