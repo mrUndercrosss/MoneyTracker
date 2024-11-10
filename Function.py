@@ -9,7 +9,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import datetime
 
-from IncomeTracking import get_incomes_from_file
+from IncomeTracking import get_incomes_from_file, write_incomes
 
 
 def open_menu(user):
@@ -280,7 +280,7 @@ def open_registration(user):
 
 def open_expense_window(user):
     """
-    Открывает окно для создания транзакции
+    Открывает окно для создания транзакции расходов
     """
 
     def expense_submit():
@@ -326,6 +326,57 @@ def open_expense_window(user):
     l_date.grid(row=3, column=0, sticky='w', padx=10, pady=10)
     f_date.grid(row=3, column=1, sticky='e', padx=10, pady=10)
     btn_submit.grid(row=4, column=0, columnspan=2)
+
+
+def open_income_window(user):
+    """
+    Открывает окно для создания транзакции доходов
+    """
+
+    def income_submit():
+        """
+        Собирает данные для записи транзакции и закрывает окно
+        """
+
+        name = f_name_income.get()
+        amount = float(f_amount.get())
+        payment_date = f_date.get()
+        category = f_category.get()
+        write_incomes(name=name, category=category, amount=round(amount), user_id=user.user_id, date=payment_date)
+        upgrade_diagram_frame(user)
+        income_window.destroy()
+
+    root = user.main_window
+
+    income_window = Toplevel(root)
+    income_window.title("Window 1")
+    income_window.geometry("350x250")
+    income_window.attributes('-topmost', True)
+    income_window.lift()
+    income_window.focus_force()
+    income_window.resizable(width=False, height=False)
+
+    income_categories = list(Category().get_income_category_dict().keys())
+    l_name_income = Label(income_window, text='Где деньги взял?')
+    f_name_income = Entry(income_window, justify=RIGHT)
+    l_category = Label(income_window, text='Выбери категорию доходов')
+    f_category = Combobox(income_window, values=income_categories)
+    l_amount = Label(income_window, text='Введи сумму')
+    f_amount = Entry(income_window, justify=RIGHT)
+    l_date = Label(income_window, text='Введи дату')
+    f_date = DateEntry(income_window, date_pattern='dd-mm-YYYY')
+    btn_submit = Button(income_window, text="Submit", command=income_submit)
+
+    l_name_income.grid(row=0, column=0, sticky='w', padx=10, pady=10)
+    f_name_income.grid(row=0, column=1, sticky='e', padx=10, pady=10)
+    l_category.grid(row=1, column=0, sticky='w', padx=10, pady=10)
+    f_category.grid(row=1, column=1, sticky='e', padx=10, pady=10)
+    l_amount.grid(row=2, column=0, sticky='w', padx=10, pady=10)
+    f_amount.grid(row=2, column=1, sticky='e', padx=10, pady=10)
+    l_date.grid(row=3, column=0, sticky='w', padx=10, pady=10)
+    f_date.grid(row=3, column=1, sticky='e', padx=10, pady=10)
+    btn_submit.grid(row=4, column=0, columnspan=2)
+
 
 def switch_diagram_type_to_income(user):
     user.expenses_or_income ='i'

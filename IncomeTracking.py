@@ -28,7 +28,7 @@ def write_to_file(name, category, amount, user_id, date, file):
 
 def get_incomes_from_file(file):
     incomes = []
-    with open(file, "r", encoding="utf-8") as f:
+    with open(file, "r", encoding="windows-1251") as f:
         lines = f.readlines()
         for line in lines:
             if len(line) == 1:      # Видимо из-за кодировок он теперь в строках видит \n, минипроверка

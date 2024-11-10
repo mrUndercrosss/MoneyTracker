@@ -192,13 +192,15 @@ class BottomPanel(Panel):
                         w_divisor=3,
                         h_divisor=5,
                         width=int(self.width), height=self.height, bg='green',
-                        text='Добавить транзакцию', command=self.expense_window)
+                        text='Добавить транзакцию', command=self.transaction_window)
 
     @staticmethod
-    def expense_window():
+    def transaction_window():
         global user
-        open_expense_window(user)
-
+        if user.expenses_or_income == 'e':
+            open_expense_window(user)
+        else:
+            open_income_window(user)
 
 user = Person()
 user.main_window = MainWindow()
