@@ -126,13 +126,13 @@ class MiddlePanel(Panel):
         income_button = self.left_button_panel.add_button(self.left_button_panel.frame, frame_side='top',
                                                           button_side='bottom',
                                                           width=int(self.width), height=self.height, bg='green',
-                                                          w_divisor=1,
-                                                          h_divisor=7, text='Доход')
+                                                          w_divisor=1, h_divisor=7,
+                                                          text='Доход', command=self.income_graphic)
         expenses_button = self.left_button_panel.add_button(self.left_button_panel.frame, frame_side='top',
                                                             button_side='bottom',
                                                             width=int(self.width), height=self.height, bg='green',
-                                                            w_divisor=1,
-                                                            h_divisor=7, text='Расход')
+                                                            w_divisor=1, h_divisor=7,
+                                                            text='Расход', command=self.expense_graphic)
         year_button = self.left_button_panel.add_button(self.left_button_panel.frame, frame_side='top',
                                                         button_side='bottom',
                                                         width=int(self.width), height=self.height, bg='green',
@@ -142,6 +142,17 @@ class MiddlePanel(Panel):
         get_graphic(self)
 
         self.category_type = None
+
+    @staticmethod
+    def income_graphic():
+        global user
+        switch_diagram_type_to_income(user)
+
+
+    @staticmethod
+    def expense_graphic():
+        global user
+        switch_diagram_type_to_expense(user)
 
     @staticmethod
     def period_day():

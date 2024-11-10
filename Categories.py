@@ -18,7 +18,7 @@ class Category:
 
         return category_dict
 
-    def get_income_category_list(self):
+    def get_income_category_dict(self):
         category_dict = {}
         with open(self.category_file, "r") as file:
             lines = file.readlines()
@@ -52,10 +52,10 @@ class ExpenseCategories(Category):
 class IncomeCategories(Category):
     def __init__(self):
         super().__init__()
-        self.category_dict = self.get_income_category_list()
+        self.category_dict = self.get_income_category_dict()
 
 
-x = Category()
-expence = x.get_expence_category_dict()
-income = x.get_income_category_list()
-print()
+# x = Category()
+# expence = x.get_expence_category_dict()
+# income = x.get_income_category_dict()
+# print()

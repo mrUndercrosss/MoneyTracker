@@ -9,6 +9,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import datetime
 
+from IncomeTracking import get_incomes_from_file
+
 
 def open_menu(user):
     """
@@ -325,20 +327,42 @@ def open_expense_window(user):
     f_date.grid(row=3, column=1, sticky='e', padx=10, pady=10)
     btn_submit.grid(row=4, column=0, columnspan=2)
 
+def switch_diagram_type_to_income(user):
+    user.expenses_or_income ='i'
+    upgrade_diagram_frame(user)
 
-def get_graphic(Middle_panel):
+def switch_diagram_type_to_expense(user):
+    user.expenses_or_income ='e'
+    upgrade_diagram_frame(user)
+
+def get_graphic(Middle_panel, user=None):
+
+    """
+    Функция выводит диаграмму расходов/доходов за указанный период
+    :param user:
+    :return:
+    """
+
     # if user.user_id:
     #     rows = db.get_expenses_from_db()
     # else:
+    rows = [] # todo: Что должно быть на главном экране, если расходов нет?
     expense_file_path = "csv/expenses.csv"
+
     if expense_file_path:
         cat = ExpenseCategories()
-        expense_categories = cat.get_expence_category_dict()
+        categories = cat.get_expence_category_dict()
         rows = get_expesnses_from_file(expense_file_path)
-    else:
-        rows = None  # todo: Что должно быть на главном экране, если расходов нет?
 
-    categories = []
+    if user:
+        if user.expenses_or_income == 'i':
+            income_file_path = "csv/incomes.csv"
+            if income_file_path:
+                cat = IncomeCategories()
+                categories = cat.get_income_category_dict()
+                rows = get_incomes_from_file(income_file_path)
+
+    categories_in_diagram = []
     colors = []
     amount = []
 
@@ -346,17 +370,17 @@ def get_graphic(Middle_panel):
         for row in rows:
             category_name, category_amount, category_date = row[-1], int(row[2]), row[-2]
             if (Middle_panel.period_date[0] in category_date) or (category_date in Middle_panel.period_date):
-                if category_name not in categories:
-                    categories.append(category_name)
+                if category_name not in categories_in_diagram:
+                    categories_in_diagram.append(category_name)
                     amount.append(category_amount)
-                    colors.append(expense_categories.get(category_name)[0])
+                    colors.append(categories.get(category_name)[0])
                 else:
-                    ind = categories.index(category_name)
+                    ind = categories_in_diagram.index(category_name)
                     amount[ind] += category_amount
 
         fig = Figure(figsize=(5, 4), dpi=100)
         ax = fig.add_subplot(111)
-        ax.pie(amount, labels=categories, colors=colors, autopct='%1.1f%%')
+        ax.pie(amount, labels=categories_in_diagram, colors=colors, autopct='%1.1f%%')
         ax.axis('equal')
 
         canvas = FigureCanvasTkAgg(fig, master=Middle_panel.diagram_frame.frame)
@@ -364,20 +388,19 @@ def get_graphic(Middle_panel):
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
 
-print()
 
 
 def upgrade_diagram_frame(user):  # todo: Очень на тоненького решение, разобраться бы как передаются названия
-    objects_list = []  # todo: для фреймов и канвасов и закрывать конкретные канвасы
+    objects_list = []             # todo: для фреймов и канвасов и закрывать конкретные канвасы (Первый анализ показал, что никак)
     for widget in user.main_window.middle_panel.frame.winfo_children():
         objects_list.append(widget)
 
     for widget in user.main_window.middle_panel.frame.winfo_children():
         if len(widget.children) == 1:
             print()
-            list(widget.children.values())[0].destroy()
+            list(widget.children.values())[0].destroy() # Что за дикий финт ушами?
 
-    get_graphic(user.main_window.middle_panel)
+    get_graphic(user.main_window.middle_panel, user)
 
 
 def get_period_day(user):
