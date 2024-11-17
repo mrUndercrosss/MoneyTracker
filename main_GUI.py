@@ -1,6 +1,7 @@
 from tkinter import *
 from Function import *
 from DB import *
+from Graphic import get_graphic
 from Person import Person, MainWindow
 
 
@@ -133,12 +134,13 @@ class MiddlePanel(Panel):
                                                             width=int(self.width), height=self.height, bg='green',
                                                             w_divisor=1, h_divisor=7,
                                                             text='Расход', command=self.expense_graphic)
-        year_button = self.left_button_panel.add_button(self.left_button_panel.frame, frame_side='top',
+        no_name_button = self.left_button_panel.add_button(self.left_button_panel.frame, frame_side='top',
                                                         button_side='bottom',
                                                         width=int(self.width), height=self.height, bg='green',
                                                         w_divisor=1,
                                                         h_divisor=7, text='?')
 
+        get_diagram(self)
         get_graphic(self)
 
         self.category_type = None
@@ -147,36 +149,43 @@ class MiddlePanel(Panel):
     def income_graphic():
         global user
         switch_diagram_type_to_income(user)
+        get_graphic(user.main_window.middle_panel)
 
 
     @staticmethod
     def expense_graphic():
         global user
         switch_diagram_type_to_expense(user)
+        get_graphic(user.main_window.middle_panel)
 
     @staticmethod
     def period_day():
         global user
         get_period_day(user)
         upgrade_diagram_frame(user)
+        get_graphic(user.main_window.middle_panel)
 
     @staticmethod
     def period_week():
         global user
         get_period_week(user)
         upgrade_diagram_frame(user)
+        get_graphic(user.main_window.middle_panel)
 
     @staticmethod
     def period_month():
         global user
         get_month(user)
         upgrade_diagram_frame(user)
+        get_graphic(user.main_window.middle_panel)
 
     @staticmethod
     def period_year():
         global user
         get_year(user)
         upgrade_diagram_frame(user)
+        get_graphic(user.main_window.middle_panel)
+
 
 class BottomPanel(Panel):
 
@@ -201,6 +210,7 @@ class BottomPanel(Panel):
             open_expense_window(user)
         else:
             open_income_window(user)
+
 
 user = Person()
 user.main_window = MainWindow()

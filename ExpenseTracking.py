@@ -26,9 +26,10 @@ def write_to_file(name, category, amount, user_id, date, file):
         f.write(f"{record.name},{record.category},{record.amount},{record.user_id},{record.date} \n")
 
 
-def get_expesnses_from_file(expend_file):
+def get_expesnses_from_file():
+    expense_file_path = "csv/expenses.csv"
     expenses = []
-    with open(expend_file, "r") as f:
+    with open(expense_file_path, "r", encoding="windows-1251") as f:
         lines = f.readlines()
         for line in lines:
             if len(line) == 1:      #Видимо из-за кодировок он теперь в строках видит \n, минипроверка

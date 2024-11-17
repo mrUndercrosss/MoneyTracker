@@ -9,6 +9,7 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import datetime
 
+from Graphic import get_graphic
 from IncomeTracking import get_incomes_from_file, write_incomes
 
 
@@ -294,6 +295,7 @@ def open_expense_window(user):
         category = f_category.get()
         write_expenses(name=name, category=category, amount=round(amount), user_id=user.user_id, date=payment_date)
         upgrade_diagram_frame(user)
+        get_graphic(user.main_window.middle_panel)
         spending_window.destroy()
 
     root = user.main_window
@@ -344,6 +346,7 @@ def open_income_window(user):
         category = f_category.get()
         write_incomes(name=name, category=category, amount=round(amount), user_id=user.user_id, date=payment_date)
         upgrade_diagram_frame(user)
+        get_graphic(user.main_window.middle_panel)
         income_window.destroy()
 
     root = user.main_window
@@ -386,7 +389,7 @@ def switch_diagram_type_to_expense(user):
     user.expenses_or_income ='e'
     upgrade_diagram_frame(user)
 
-def get_graphic(Middle_panel, user=None):
+def get_diagram(Middle_panel, user=None):
 
     """
     Функция выводит диаграмму расходов/доходов за указанный период
@@ -398,20 +401,16 @@ def get_graphic(Middle_panel, user=None):
     #     rows = db.get_expenses_from_db()
     # else:
     rows = [] # todo: Что должно быть на главном экране, если расходов нет?
-    expense_file_path = "csv/expenses.csv"
 
-    if expense_file_path:
-        cat = ExpenseCategories()
-        categories = cat.get_expence_category_dict()
-        rows = get_expesnses_from_file(expense_file_path)
+    cat = ExpenseCategories()
+    categories = cat.get_expence_category_dict()
+    rows = get_expesnses_from_file()
 
     if user:
         if user.expenses_or_income == 'i':
-            income_file_path = "csv/incomes.csv"
-            if income_file_path:
-                cat = IncomeCategories()
-                categories = cat.get_income_category_dict()
-                rows = get_incomes_from_file(income_file_path)
+            cat = IncomeCategories()
+            categories = cat.get_income_category_dict()
+            rows = get_incomes_from_file()
 
     categories_in_diagram = []
     colors = []
@@ -451,7 +450,7 @@ def upgrade_diagram_frame(user):  # todo: Очень на тоненького �
             print()
             list(widget.children.values())[0].destroy() # Что за дикий финт ушами?
 
-    get_graphic(user.main_window.middle_panel, user)
+    get_diagram(user.main_window.middle_panel, user)
 
 
 def get_period_day(user):
