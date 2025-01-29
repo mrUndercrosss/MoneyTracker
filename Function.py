@@ -9,8 +9,9 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 import datetime
 
+from Diagram import *
 from Graphic import get_graphic
-from IncomeTracking import get_incomes_from_file, write_incomes
+
 
 
 def open_menu(user):
@@ -293,7 +294,7 @@ def open_expense_window(user):
         amount = float(f_amount.get())
         payment_date = f_date.get()
         category = f_category.get()
-        write_expenses(name=name, category=category, amount=round(amount), user_id=user.user_id, date=payment_date)
+        write_to_file(name=name, category=category, amount=round(amount), user_id=user.user_id, date=payment_date)
         upgrade_diagram_frame(user)
         get_graphic(user.main_window.middle_panel)
         spending_window.destroy()
@@ -308,7 +309,7 @@ def open_expense_window(user):
     spending_window.focus_force()
     spending_window.resizable(width=False, height=False)
 
-    expense_categories = list(Category().get_expence_category_dict().keys())
+    expense_categories = list(Category().get_expense_category_dict().keys())
     l_name_expense = Label(spending_window, text='На что потратил?')
     f_name_expense = Entry(spending_window, justify=RIGHT)
     l_category = Label(spending_window, text='Выбери категорию раcходов')
@@ -344,7 +345,7 @@ def open_income_window(user):
         amount = float(f_amount.get())
         payment_date = f_date.get()
         category = f_category.get()
-        write_incomes(name=name, category=category, amount=round(amount), user_id=user.user_id, date=payment_date)
+        write_to_file(name=name, category=category, amount=round(amount), user_id=user.user_id, date=payment_date)
         upgrade_diagram_frame(user)
         get_graphic(user.main_window.middle_panel)
         income_window.destroy()
@@ -389,68 +390,7 @@ def switch_diagram_type_to_expense(user):
     user.expenses_or_income ='e'
     upgrade_diagram_frame(user)
 
-def get_diagram(Middle_panel, user=None):
 
-    """
-    Функция выводит диаграмму расходов/доходов за указанный период
-    :param user:
-    :return:
-    """
-
-    # if user.user_id:
-    #     rows = db.get_expenses_from_db()
-    # else:
-    rows = [] # todo: Что должно быть на главном экране, если расходов нет?
-
-    cat = ExpenseCategories()
-    categories = cat.get_expence_category_dict()
-    rows = get_expesnses_from_file()
-
-    if user:
-        if user.expenses_or_income == 'i':
-            cat = IncomeCategories()
-            categories = cat.get_income_category_dict()
-            rows = get_incomes_from_file()
-
-    categories_in_diagram = []
-    colors = []
-    amount = []
-
-    if rows:
-        for row in rows:
-            category_name, category_amount, category_date = row[-1], int(row[2]), row[-2]
-            if (Middle_panel.period_date[0] in category_date) or (category_date in Middle_panel.period_date):
-                if category_name not in categories_in_diagram:
-                    categories_in_diagram.append(category_name)
-                    amount.append(category_amount)
-                    colors.append(categories.get(category_name)[0])
-                else:
-                    ind = categories_in_diagram.index(category_name)
-                    amount[ind] += category_amount
-
-        fig = Figure(figsize=(5, 4), dpi=100)
-        ax = fig.add_subplot(111)
-        ax.pie(amount, labels=categories_in_diagram, colors=colors, autopct='%1.1f%%')
-        ax.axis('equal')
-
-        canvas = FigureCanvasTkAgg(fig, master=Middle_panel.diagram_frame.frame)
-        canvas.draw()
-        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-
-
-
-
-def upgrade_diagram_frame(user):  # todo: Очень на тоненького решение, разобраться бы как передаются названия
-    objects_list = []             # todo: для фреймов и канвасов и закрывать конкретные канвасы (Первый анализ показал, что никак)
-    for widget in user.main_window.middle_panel.frame.winfo_children():
-        objects_list.append(widget)
-
-    for widget in user.main_window.middle_panel.frame.winfo_children():
-        if len(widget.children) == 1:
-            print()
-            list(widget.children.values())[0].destroy() # Что за дикий финт ушами?
-
-    get_diagram(user.main_window.middle_panel, user)
 
 
 def get_period_day(user):

@@ -7,3 +7,8 @@ class Expense:
         self.user_id = user_id
         self.date = date
 
+
+    def generate_json(self):
+        record = f'name:{self.name}|category:{self.category}|amount:{self.amount}|user_id:{self.user_id}|date:{self.date}\n'
+        return record
+
